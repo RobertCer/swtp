@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:swtp/models/people.dart';
-import 'package:swtp/repositories/my_swapi.dart';
+import 'package:swtp/repositories/swapi.dart';
 import 'package:swtp/screens/details_screen.dart';
 import 'package:swtp/widgets/people_item_list.dart';
 import 'package:swtp/widgets/people_item_list_item.dart';

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 import 'response_list.dart';
@@ -144,6 +146,10 @@ class PeopleItem {
       'vehicles': vehicles,
     };
   }
+
+  String toJson() => json.encode(toMap());
+
+  factory PeopleItem.fromJson(String source) => PeopleItem(json.decode(source));
 
   @override
   String toString() {
