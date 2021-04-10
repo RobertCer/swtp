@@ -1,11 +1,13 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 
 import 'response_list.dart';
 
 /// A Starship resource is a single transport craft that has hyperdrive capability.
 class StarshipsItem {
+  static const typeId = 4;
+
   late final String name;
   late final String model;
   late final String starshipClass;
@@ -13,14 +15,14 @@ class StarshipsItem {
   late final String costInCredits;
   late final String length;
   late final String crew;
-  late final String passengers;
+  late final String passengerUrls;
   late final String maxAtmospheringSpeed;
   late final String hyperdriveRating;
   late final String mglt;
   late final String cargoCapacity;
   late final String consumables;
-  late final List<String> films;
-  late final List<String> pilots;
+  late final List<String> filmUrls;
+  late final List<String> pilotUrls;
   late final String url;
   late final String created;
   late final String edited;
@@ -70,7 +72,7 @@ class StarshipsItem {
     }
 
     if (map.containsKey('passengers') && map['passengers'] is String) {
-      passengers = map['passengers'];
+      passengerUrls = map['passengers'];
     } else {
       throw FormatException('passengers invalid or missing');
     }
@@ -125,17 +127,17 @@ class StarshipsItem {
       throw FormatException('edited invalid or missing');
     }
 
-    films = <String>[];
+    filmUrls = <String>[];
     if (map.containsKey('films') && map['films'] is List) {
       for (var i = 0; i < map['films'].length; i++) {
-        films.add(map['films'][i]);
+        filmUrls.add(map['films'][i]);
       }
     }
 
-    pilots = <String>[];
+    pilotUrls = <String>[];
     if (map.containsKey('pilots') && map['pilots'] is List) {
       for (var i = 0; i < map['pilots'].length; i++) {
-        pilots.add(map['pilots'][i]);
+        pilotUrls.add(map['pilots'][i]);
       }
     }
   }
@@ -144,19 +146,19 @@ class StarshipsItem {
     return {
       'name': name,
       'model': model,
-      'starshipClass': starshipClass,
+      'starship_class': starshipClass,
       'manufacturer': manufacturer,
       'costInCredits': costInCredits,
       'length': length,
       'crew': crew,
-      'passengers': passengers,
-      'maxAtmospheringSpeed': maxAtmospheringSpeed,
-      'hyperdriveRating': hyperdriveRating,
+      'passengers': passengerUrls,
+      'max_atmosphering_speed': maxAtmospheringSpeed,
+      'hyperdrive_rating': hyperdriveRating,
       'mglt': mglt,
-      'cargoCapacity': cargoCapacity,
+      'cargo_capacity': cargoCapacity,
       'consumables': consumables,
-      'films': films,
-      'pilots': pilots,
+      'films': filmUrls,
+      'pilots': pilotUrls,
       'url': url,
       'created': created,
       'edited': edited,
@@ -170,7 +172,7 @@ class StarshipsItem {
 
   @override
   String toString() {
-    return 'StarshipsItem(name: $name, model: $model, starshipClass: $starshipClass, manufacturer: $manufacturer, costInCredits: $costInCredits, length: $length, crew: $crew, passengers: $passengers, maxAtmospheringSpeed: $maxAtmospheringSpeed, hyperdriveRating: $hyperdriveRating, mglt: $mglt, cargoCapacity: $cargoCapacity, consumables: $consumables, films: $films, pilots: $pilots, url: $url, created: $created, edited: $edited)';
+    return 'StarshipsItem(name: $name, model: $model, starshipClass: $starshipClass, manufacturer: $manufacturer, costInCredits: $costInCredits, length: $length, crew: $crew, passengers: $passengerUrls, maxAtmospheringSpeed: $maxAtmospheringSpeed, hyperdriveRating: $hyperdriveRating, mglt: $mglt, cargoCapacity: $cargoCapacity, consumables: $consumables, films: $filmUrls, pilots: $pilotUrls, url: $url, created: $created, edited: $edited)';
   }
 
   @override
@@ -185,14 +187,14 @@ class StarshipsItem {
         other.costInCredits == costInCredits &&
         other.length == length &&
         other.crew == crew &&
-        other.passengers == passengers &&
+        other.passengerUrls == passengerUrls &&
         other.maxAtmospheringSpeed == maxAtmospheringSpeed &&
         other.hyperdriveRating == hyperdriveRating &&
         other.mglt == mglt &&
         other.cargoCapacity == cargoCapacity &&
         other.consumables == consumables &&
-        other.films == films &&
-        other.pilots == pilots &&
+        other.filmUrls == filmUrls &&
+        other.pilotUrls == pilotUrls &&
         other.url == url &&
         other.created == created &&
         other.edited == edited;
@@ -207,14 +209,14 @@ class StarshipsItem {
         costInCredits.hashCode ^
         length.hashCode ^
         crew.hashCode ^
-        passengers.hashCode ^
+        passengerUrls.hashCode ^
         maxAtmospheringSpeed.hashCode ^
         hyperdriveRating.hashCode ^
         mglt.hashCode ^
         cargoCapacity.hashCode ^
         consumables.hashCode ^
-        films.hashCode ^
-        pilots.hashCode ^
+        filmUrls.hashCode ^
+        pilotUrls.hashCode ^
         url.hashCode ^
         created.hashCode ^
         edited.hashCode;
@@ -226,21 +228,96 @@ class Starships extends ResponseList {
   List<StarshipsItem> results;
 
   Starships(Map map)
-      : results = _parseResults(map),
+      : results = ResponseList.parseResults<StarshipsItem>(
+          map,
+          constructor: (map) => StarshipsItem(map),
+        ),
         super(map);
+}
 
-  static List<StarshipsItem> _parseResults(Map map) {
-    final list = <StarshipsItem>[];
-    print(map['results'].runtimeType);
-    if (map.containsKey('results') && map['results'] is List) {
-      for (var i = 0; i < map['results'].length; i++) {
-        try {
-          list.add(StarshipsItem(map['results'][i]));
-        } catch (err) {
-          continue;
-        }
-      }
-    }
-    return list;
+class StarshipsItemAdapter extends TypeAdapter<StarshipsItem> {
+  @override
+  final int typeId = 4;
+
+  @override
+  StarshipsItem read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+
+    final map = {
+      'name': fields[0] as String,
+      'model': fields[1] as String,
+      'starship_class': fields[2] as String,
+      'manufacturer': fields[3] as String,
+      'costInCredits': fields[4] as String,
+      'length': fields[5] as String,
+      'crew': fields[6] as String,
+      'passengers': fields[7] as String,
+      'max_atmosphering_speed': fields[8] as String,
+      'hyperdrive_rating': fields[9] as String,
+      'mglt': fields[10] as String,
+      'cargo_capacity': fields[11] as String,
+      'consumables': fields[12] as String,
+      'films': (fields[13] as List).cast<String>(),
+      'pilots': (fields[14] as List).cast<String>(),
+      'url': fields[15] as String,
+      'created': fields[16] as String,
+      'edited': fields[17] as String,
+    };
+    return StarshipsItem(map);
   }
+
+  @override
+  void write(BinaryWriter writer, StarshipsItem obj) {
+    writer
+      ..writeByte(18)
+      ..writeByte(0)
+      ..write(obj.name)
+      ..writeByte(1)
+      ..write(obj.model)
+      ..writeByte(2)
+      ..write(obj.starshipClass)
+      ..writeByte(3)
+      ..write(obj.manufacturer)
+      ..writeByte(4)
+      ..write(obj.costInCredits)
+      ..writeByte(5)
+      ..write(obj.length)
+      ..writeByte(6)
+      ..write(obj.crew)
+      ..writeByte(7)
+      ..write(obj.passengerUrls)
+      ..writeByte(8)
+      ..write(obj.maxAtmospheringSpeed)
+      ..writeByte(9)
+      ..write(obj.hyperdriveRating)
+      ..writeByte(10)
+      ..write(obj.mglt)
+      ..writeByte(11)
+      ..write(obj.cargoCapacity)
+      ..writeByte(12)
+      ..write(obj.consumables)
+      ..writeByte(13)
+      ..write(obj.filmUrls)
+      ..writeByte(14)
+      ..write(obj.pilotUrls)
+      ..writeByte(15)
+      ..write(obj.url)
+      ..writeByte(16)
+      ..write(obj.created)
+      ..writeByte(17)
+      ..write(obj.edited);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StarshipsItemAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

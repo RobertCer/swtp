@@ -1,11 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
+import 'package:swtp/models/swapi_item.dart';
 
 import 'response_list.dart';
 
 /// A People resource is an individual person or character within the Star Wars universe.
-class PeopleItem {
+class PeopleItem extends SwapiItem {
+  static const typeId = 2;
+
   late final String name;
   late final String birthYear;
   late final String eyeColor;
@@ -14,15 +18,14 @@ class PeopleItem {
   late final String height;
   late final String mass;
   late final String skinColor;
-  late final String homeWorld;
+  late final String homeWorldUrl;
   late final String url;
   late final String created;
   late final String edited;
-
-  late final List<String> films;
-  late final List<String> species;
-  late final List<String> starShips;
-  late final List<String> vehicles;
+  late final List<String> filmUrls;
+  late final List<String> specieUrls;
+  late final List<String> starShipUrls;
+  late final List<String> vehicleUrls;
 
   PeopleItem(Map map) {
     if (map.containsKey('name') && map['name'] is String) {
@@ -74,7 +77,7 @@ class PeopleItem {
     }
 
     if (map.containsKey('homeworld') && map['homeworld'] is String) {
-      homeWorld = map['homeworld'];
+      homeWorldUrl = map['homeworld'];
     } else {
       throw FormatException('invalid homeworld');
     }
@@ -97,31 +100,31 @@ class PeopleItem {
       throw FormatException('invalid edited');
     }
 
-    films = <String>[];
+    filmUrls = <String>[];
     if (map.containsKey('films') && map['films'] is List) {
       for (var i = 0; i < map['films'].length; i++) {
-        films.add(map['films'][i]);
+        filmUrls.add(map['films'][i]);
       }
     }
 
-    species = <String>[];
+    specieUrls = <String>[];
     if (map.containsKey('species') && map['species'] is List) {
       for (var i = 0; i < map['species'].length; i++) {
-        species.add(map['species'][i]);
+        specieUrls.add(map['species'][i]);
       }
     }
 
-    starShips = <String>[];
+    starShipUrls = <String>[];
     if (map.containsKey('starships') && map['starships'] is List) {
       for (var i = 0; i < map['starships'].length; i++) {
-        starShips.add(map['starships'][i]);
+        starShipUrls.add(map['starships'][i]);
       }
     }
 
-    vehicles = <String>[];
+    vehicleUrls = <String>[];
     if (map.containsKey('vehicles') && map['vehicles'] is String) {
       for (var i = 0; i < map['vehicles'].length; i++) {
-        vehicles.add(map['vehicles'][i]);
+        vehicleUrls.add(map['vehicles'][i]);
       }
     }
   }
@@ -136,14 +139,14 @@ class PeopleItem {
       'height': height,
       'mass': mass,
       'skin_color': skinColor,
-      'homeworld': homeWorld,
+      'homeworld': homeWorldUrl,
       'url': url,
       'created': created,
       'edited': edited,
-      'films': films,
-      'species': species,
-      'starships': starShips,
-      'vehicles': vehicles,
+      'films': filmUrls,
+      'species': specieUrls,
+      'starships': starShipUrls,
+      'vehicles': vehicleUrls,
     };
   }
 
@@ -153,7 +156,7 @@ class PeopleItem {
 
   @override
   String toString() {
-    return 'PeopleItem(name: $name, birthYear: $birthYear, eyeColor: $eyeColor, gender: $gender, hairColor: $hairColor, height: $height, mass: $mass, skinColor: $skinColor, homeworld: $homeWorld, url: $url, created: $created, edited: $edited, films: $films, species: $species, starships: $starShips, vehicles: $vehicles)';
+    return 'PeopleItem(name: $name, birthYear: $birthYear, eyeColor: $eyeColor, gender: $gender, hairColor: $hairColor, height: $height, mass: $mass, skinColor: $skinColor, homeworld: $homeWorldUrl, url: $url, created: $created, edited: $edited, films: $filmUrls, species: $specieUrls, starships: $starShipUrls, vehicles: $vehicleUrls)';
   }
 
   @override
@@ -169,14 +172,14 @@ class PeopleItem {
         other.height == height &&
         other.mass == mass &&
         other.skinColor == skinColor &&
-        other.homeWorld == homeWorld &&
+        other.homeWorldUrl == homeWorldUrl &&
         other.url == url &&
         other.created == created &&
         other.edited == edited &&
-        listEquals(other.films, films) &&
-        listEquals(other.species, species) &&
-        listEquals(other.starShips, starShips) &&
-        listEquals(other.vehicles, vehicles);
+        listEquals(other.filmUrls, filmUrls) &&
+        listEquals(other.specieUrls, specieUrls) &&
+        listEquals(other.starShipUrls, starShipUrls) &&
+        listEquals(other.vehicleUrls, vehicleUrls);
   }
 
   @override
@@ -189,14 +192,14 @@ class PeopleItem {
         height.hashCode ^
         mass.hashCode ^
         skinColor.hashCode ^
-        homeWorld.hashCode ^
+        homeWorldUrl.hashCode ^
         url.hashCode ^
         created.hashCode ^
         edited.hashCode ^
-        films.hashCode ^
-        species.hashCode ^
-        starShips.hashCode ^
-        vehicles.hashCode;
+        filmUrls.hashCode ^
+        specieUrls.hashCode ^
+        starShipUrls.hashCode ^
+        vehicleUrls.hashCode;
   }
 }
 
@@ -204,21 +207,90 @@ class People extends ResponseList {
   List<PeopleItem> results;
 
   People(Map map)
-      : results = _parseResults(map),
+      : results = ResponseList.parseResults<PeopleItem>(
+          map,
+          constructor: (map) => PeopleItem(map),
+        ),
         super(map);
+}
 
-  static List<PeopleItem> _parseResults(Map map) {
-    final list = <PeopleItem>[];
-    print(map['results'].runtimeType);
-    if (map.containsKey('results') && map['results'] is List) {
-      for (var i = 0; i < map['results'].length; i++) {
-        try {
-          list.add(PeopleItem(map['results'][i]));
-        } catch (err) {
-          continue;
-        }
-      }
-    }
-    return list;
+class PeopleItemAdapter extends TypeAdapter<PeopleItem> {
+  @override
+  final int typeId = 2;
+
+  @override
+  PeopleItem read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+
+    final map = {
+      'name': fields[0] as String,
+      'birth_year': fields[1] as String,
+      'eye_color': fields[2] as String,
+      'gender': fields[3] as String,
+      'hair_color': fields[4] as String,
+      'height': fields[5] as String,
+      'mass': fields[6] as String,
+      'skin_color': fields[7] as String,
+      'homeworld': fields[8] as String,
+      'url': fields[9] as String,
+      'created': fields[10] as String,
+      'edited': fields[11] as String,
+      'films': (fields[12] as List).cast<String>(),
+      'species': (fields[13] as List).cast<String>(),
+      'starships': (fields[14] as List).cast<String>(),
+      'vehicles': (fields[15] as List).cast<String>(),
+    };
+    return PeopleItem(map);
   }
+
+  @override
+  void write(BinaryWriter writer, PeopleItem obj) {
+    writer
+      ..writeByte(16)
+      ..writeByte(0)
+      ..write(obj.name)
+      ..writeByte(1)
+      ..write(obj.birthYear)
+      ..writeByte(2)
+      ..write(obj.eyeColor)
+      ..writeByte(3)
+      ..write(obj.gender)
+      ..writeByte(4)
+      ..write(obj.hairColor)
+      ..writeByte(5)
+      ..write(obj.height)
+      ..writeByte(6)
+      ..write(obj.mass)
+      ..writeByte(7)
+      ..write(obj.skinColor)
+      ..writeByte(8)
+      ..write(obj.homeWorldUrl)
+      ..writeByte(9)
+      ..write(obj.url)
+      ..writeByte(10)
+      ..write(obj.created)
+      ..writeByte(11)
+      ..write(obj.edited)
+      ..writeByte(12)
+      ..write(obj.filmUrls)
+      ..writeByte(13)
+      ..write(obj.specieUrls)
+      ..writeByte(14)
+      ..write(obj.starShipUrls)
+      ..writeByte(15)
+      ..write(obj.vehicleUrls);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PeopleItemAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

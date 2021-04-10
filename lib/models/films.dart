@@ -1,9 +1,13 @@
 import 'dart:convert';
 
+import 'package:hive/hive.dart';
+
 import 'response_list.dart';
 
 /// A Film resource is a single film.
 class FilmsItem {
+  static const typeId = 0;
+
   late final String title;
   late final int episodeId;
   late final String openingCrawl;
@@ -26,7 +30,7 @@ class FilmsItem {
       throw FormatException('title invalid or missing');
     }
 
-    if (map.containsKey('episode_id') && map['episode_id'] is String) {
+    if (map.containsKey('episode_id') && map['episode_id'] is int) {
       episodeId = map['episode_id'];
     } else {
       throw FormatException('episode_id invalid or missing');
@@ -113,8 +117,8 @@ class FilmsItem {
   Map<String, dynamic> toMap() {
     return {
       'title': title,
-      'episodeId': episodeId,
-      'openingCrawl': openingCrawl,
+      'episode_id': episodeId,
+      'opening_crawl': openingCrawl,
       'director': director,
       'producer': producer,
       'releaseDate': releaseDate,
@@ -200,4 +204,78 @@ class Films extends ResponseList {
     }
     return list;
   }
+}
+
+class FilmsItemAdapter extends TypeAdapter<FilmsItem> {
+  @override
+  final int typeId = 0;
+
+  @override
+  FilmsItem read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    final map = {
+      'title': fields[0] as String,
+      'episode_id': fields[1] as int,
+      'opening_crawl': fields[2] as String,
+      'director': fields[3] as String,
+      'producer': fields[4] as String,
+      'release_date': fields[5] as String,
+      'species': (fields[6] as List).cast<String>(),
+      'starships': (fields[7] as List).cast<String>(),
+      'vehicles': (fields[8] as List).cast<String>(),
+      'characters': (fields[9] as List).cast<String>(),
+      'planets': (fields[10] as List).cast<String>(),
+      'url': fields[11] as String,
+      'created': fields[12] as String,
+      'edited': fields[13] as String,
+    };
+    return FilmsItem(map);
+  }
+
+  @override
+  void write(BinaryWriter writer, FilmsItem obj) {
+    writer
+      ..writeByte(14)
+      ..writeByte(0)
+      ..write(obj.title)
+      ..writeByte(1)
+      ..write(obj.episodeId)
+      ..writeByte(2)
+      ..write(obj.openingCrawl)
+      ..writeByte(3)
+      ..write(obj.director)
+      ..writeByte(4)
+      ..write(obj.producer)
+      ..writeByte(5)
+      ..write(obj.releaseDate)
+      ..writeByte(6)
+      ..write(obj.species)
+      ..writeByte(7)
+      ..write(obj.starships)
+      ..writeByte(8)
+      ..write(obj.vehicles)
+      ..writeByte(9)
+      ..write(obj.characters)
+      ..writeByte(10)
+      ..write(obj.planets)
+      ..writeByte(11)
+      ..write(obj.url)
+      ..writeByte(12)
+      ..write(obj.created)
+      ..writeByte(13)
+      ..write(obj.edited);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FilmsItemAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

@@ -1,112 +1,28 @@
 import 'package:swtp/models/films.dart';
+import 'package:swtp/models/people.dart';
+import 'package:swtp/models/planet.dart';
 import 'package:swtp/models/species.dart';
 import 'package:swtp/models/starships.dart';
 import 'package:swtp/models/vehicles.dart';
 
 abstract class Database {
-  Future<void> saveFilmsItem(FilmsItem filmsItem);
-  Future<FilmsItem?> getFilmsItem(String id);
-  Future<void> saveVehiclesItem(VehiclesItem vehiclesItem);
-  Future<VehiclesItem?> getVehiclesItem(String id);
-  Future<void> saveSpeciesItem(SpeciesItem speciesItem);
-  Future<SpeciesItem?> getSpeciesItem(String id);
-  Future<void> saveStarshipsItem(StarshipsItem starshipsItem);
-  Future<StarshipsItem?> getStarshipsItem(String id);
-}
+  Future<void> initialize();
 
-class DatabaseImpl extends Database {
-  @override
-  Future<FilmsItem?> getFilmsItem(String id) {
-    // TODO: implement getFilmsItem
-    throw UnimplementedError();
-  }
+  Future<void> saveFilmsItems(List<FilmsItem> items);
+  Future<Map<String, FilmsItem?>> getFilmsItems(List<String> ids);
 
-  @override
-  Future<SpeciesItem?> getSpeciesItem(String id) {
-    // TODO: implement getSpeciesItem
-    throw UnimplementedError();
-  }
+  Future<void> saveSpeciesItems(List<SpeciesItem> items);
+  Future<Map<String, SpeciesItem?>> getSpeciesItems(List<String> ids);
 
-  @override
-  Future<StarshipsItem?> getStarshipsItem(String id) {
-    // TODO: implement getStarshipsItem
-    throw UnimplementedError();
-  }
+  Future<void> savePlanetsItem(List<PlanetsItem> items);
+  Future<Map<String, PlanetsItem?>> getPlanetsItems(List<String> ids);
 
-  @override
-  Future<VehiclesItem?> getVehiclesItem(String id) {
-    // TODO: implement getVehiclesItem
-    throw UnimplementedError();
-  }
+  Future<void> saveStarshipsItems(List<StarshipsItem> items);
+  Future<Map<String, StarshipsItem?>> getStarshipsItems(List<String> ids);
 
-  @override
-  Future<void> saveFilmsItem(FilmsItem filmsItem) {
-    // TODO: implement saveFilmsItem
-    throw UnimplementedError();
-  }
+  Future<void> saveVehiclesItems(List<VehiclesItem> items);
+  Future<Map<String, VehiclesItem?>> getVehiclesItems(List<String> ids);
 
-  @override
-  Future<void> saveSpeciesItem(SpeciesItem speciesItem) {
-    // TODO: implement saveSpeciesItem
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> saveStarshipsItem(StarshipsItem starshipsItem) {
-    // TODO: implement saveStarshipsItem
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> saveVehiclesItem(VehiclesItem vehiclesItem) {
-    // TODO: implement saveVehiclesItem
-    throw UnimplementedError();
-  }
-}
-
-class DatabaseMock extends Database {
-  final Map<String, FilmsItem> filmsItemMap = {};
-  final Map<String, SpeciesItem> speciesItemMap = {};
-  final Map<String, StarshipsItem> starshipsItemMap = {};
-  final Map<String, VehiclesItem> vehiclesItemMap = {};
-
-  @override
-  Future<FilmsItem?> getFilmsItem(String id) async {
-    return filmsItemMap[id];
-  }
-
-  @override
-  Future<SpeciesItem?> getSpeciesItem(String id) async {
-    return speciesItemMap[id];
-  }
-
-  @override
-  Future<StarshipsItem?> getStarshipsItem(String id) async {
-    return starshipsItemMap[id];
-  }
-
-  @override
-  Future<VehiclesItem?> getVehiclesItem(String id) async {
-    return vehiclesItemMap[id];
-  }
-
-  @override
-  Future<void> saveFilmsItem(FilmsItem filmsItem) async {
-    filmsItemMap[filmsItem.url] = filmsItem;
-  }
-
-  @override
-  Future<void> saveSpeciesItem(SpeciesItem speciesItem) async {
-    speciesItemMap[speciesItem.url] = speciesItem;
-  }
-
-  @override
-  Future<void> saveStarshipsItem(StarshipsItem starshipsItem) async {
-    starshipsItemMap[starshipsItem.url] = starshipsItem;
-  }
-
-  @override
-  Future<void> saveVehiclesItem(VehiclesItem vehiclesItem) async {
-    vehiclesItemMap[vehiclesItem.url] = vehiclesItem;
-  }
+  Future<void> savePeopleItems(List<PeopleItem> items);
+  Future<Map<String, PeopleItem?>> getPeopleItems(List<String> ids);
 }

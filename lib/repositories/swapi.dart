@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:swtp/models/films.dart';
 import 'package:swtp/models/people.dart';
+import 'package:swtp/models/planet.dart';
 import 'package:swtp/models/species.dart';
 import 'package:swtp/models/starships.dart';
 import 'package:swtp/models/vehicles.dart';
@@ -74,6 +75,18 @@ class Swapi {
   static Future<Films> getFilms(String url, {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
     return Films(map);
+  }
+
+  static Future<Planets> getPlanets(String url,
+      {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return Planets(map);
+  }
+
+  static Future<PlanetsItem> getPlanetsItem(String url,
+      {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return PlanetsItem(map);
   }
 
   static Future<SpeciesItem> getSpeciesItem(String url,

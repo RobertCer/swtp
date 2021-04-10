@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swtp/models/people.dart';
 import 'package:swtp/repositories/swapi.dart';
-import 'package:swtp/screens/details_screen.dart';
-import 'package:swtp/widgets/people_item_list.dart';
+import 'package:swtp/screens/details/details_screen.dart';
 import 'package:swtp/widgets/people_item_list_item.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -16,7 +15,6 @@ class _SearchScreenState extends State<SearchScreen> {
   final List<PeopleItem> _peopleItemList = [];
   final FocusNode _searchFocusNode = FocusNode();
   _ViewType _viewType = _ViewType.list;
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -27,7 +25,6 @@ class _SearchScreenState extends State<SearchScreen> {
   void dispose() {
     super.dispose();
     _searchFocusNode.dispose();
-    _scrollController.dispose();
   }
 
   @override
@@ -35,13 +32,8 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       body: CustomScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        controller: _scrollController,
         slivers: [
           SliverAppBar(
-            // backgroundColor: Colors.transparent,
-            // forceElevated: true,
-            // snap: true,
-            // floating: true,
             pinned: true,
             leading: null,
             titleSpacing: 4,
@@ -141,113 +133,11 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         );
     }
-
-    // return PeopleItemList(
-    //   peopleItemList: _peopleItemList,
-    // onPressed: (peopleItem) {
-    //   Navigator.of(context).pushNamed(
-    //     DetailsScreen.routeName,
-    //     arguments: DetailsScreen.createArguments(peopleItem),
-    //   );
-    // },
-    // );
-  }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     body: SafeArea(
-  //       child: LayoutBuilder(
-  //         builder: (context, constraints) {
-  //           final textFieldHeight = 46.0;
-  //           const radius = 8.0;
-  //           return Container(
-  //             padding: const EdgeInsets.symmetric(vertical: 8),
-  //             child: Stack(
-  //               // fit: StackFit.expand,
-  //               children: [
-  //                 if (_peopleItemList.isNotEmpty)
-  //                   _buildResultsWidget(constraints.maxHeight, textFieldHeight),
-  //                 _buildSearchBox(textFieldHeight, radius),
-  //               ],
-  //             ),
-  //             // child: buildColumn(textFieldHeight, radius, constraints, context),
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildResultsWidget(double height, double topPadding) {
-  //   return SingleChildScrollView(
-  //     child: Container(
-  //       height: height,
-  //       child: PeopleItemList(
-  //         peopleItemList: _peopleItemList,
-  //         onPressed: (peopleItem) {
-  //           Navigator.of(context).pushNamed(
-  //             DetailsScreen.routeName,
-  //             arguments: DetailsScreen.createArguments(peopleItem),
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Column buildColumn(
-    double textFieldHeight,
-    double radius,
-    BoxConstraints constraints,
-    BuildContext context,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              Flexible(
-                child: _buildSearchBox(textFieldHeight, radius),
-              ),
-              // const SizedBox(width: 16),
-              IconButton(
-                icon: Icon(Icons.view_column),
-                onPressed: () {},
-              )
-            ],
-          ),
-        ),
-        if (_peopleItemList.isNotEmpty)
-          Expanded(
-            child: SingleChildScrollView(
-              child: Container(
-                height: constraints.maxHeight - textFieldHeight,
-                child: PeopleItemList(
-                  peopleItemList: _peopleItemList,
-                  onPressed: (peopleItem) {
-                    Navigator.of(context).pushNamed(
-                      DetailsScreen.routeName,
-                      arguments: DetailsScreen.createArguments(peopleItem),
-                    );
-                  },
-                ),
-              ),
-            ),
-          )
-      ],
-    );
   }
 
   Widget _buildSearchBox(double textFieldHeight, double radius) {
     return GestureDetector(
-      onTap: () {
-        final offset = _scrollController.offset;
-        FocusScope.of(context).requestFocus(_searchFocusNode);
-        // _searchFocusNode.requestFocus();
-        _scrollController.jumpTo(offset);
-      },
+      onTap: () => FocusScope.of(context).requestFocus(_searchFocusNode),
       child: Container(
         color: Colors.transparent,
         height: textFieldHeight,
@@ -257,7 +147,6 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: Colors.white,
-              // shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(radius)),
             ),
             child: TextField(
