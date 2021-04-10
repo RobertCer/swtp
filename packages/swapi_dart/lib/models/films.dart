@@ -1,27 +1,23 @@
 import 'dart:convert';
 
-import 'package:hive/hive.dart';
-
 import 'response_list.dart';
+import 'swapi_item.dart';
 
 /// A Film resource is a single film.
-class FilmsItem {
-  static const typeId = 0;
-
-  late final String title;
-  late final int episodeId;
-  late final String openingCrawl;
-  late final String director;
-  late final String producer;
-  late final String releaseDate;
-  late final List<String> species;
-  late final List<String> starships;
-  late final List<String> vehicles;
-  late final List<String> characters;
-  late final List<String> planets;
-  late final String url;
-  late final String created;
-  late final String edited;
+class FilmsItem extends SwapiItem {
+  late String title;
+  late int episodeId;
+  late String openingCrawl;
+  late String director;
+  late String producer;
+  late String releaseDate;
+  late List<String> specieUrls;
+  late List<String> starshipUrls;
+  late List<String> vehicleUrls;
+  late List<String> characterUrls;
+  late List<String> planetUrls;
+  late String created;
+  late String edited;
 
   FilmsItem(Map map) {
     if (map.containsKey('title') && map['title'] is String) {
@@ -78,38 +74,38 @@ class FilmsItem {
       throw FormatException('edited invalid or missing');
     }
 
-    species = <String>[];
+    specieUrls = <String>[];
     if (map.containsKey('species') && map['species'] is List) {
       for (var i = 0; i < map['species'].length; i++) {
-        species.add(map['species'][i]);
+        specieUrls.add(map['species'][i]);
       }
     }
 
-    starships = <String>[];
+    starshipUrls = <String>[];
     if (map.containsKey('starships') && map['starships'] is List) {
       for (var i = 0; i < map['starships'].length; i++) {
-        starships.add(map['starships'][i]);
+        starshipUrls.add(map['starships'][i]);
       }
     }
 
-    vehicles = <String>[];
+    vehicleUrls = <String>[];
     if (map.containsKey('vehicles') && map['vehicles'] is List) {
       for (var i = 0; i < map['vehicles'].length; i++) {
-        vehicles.add(map['vehicles'][i]);
+        vehicleUrls.add(map['vehicles'][i]);
       }
     }
 
-    characters = <String>[];
+    characterUrls = <String>[];
     if (map.containsKey('characters') && map['characters'] is List) {
       for (var i = 0; i < map['characters'].length; i++) {
-        characters.add(map['characters'][i]);
+        characterUrls.add(map['characters'][i]);
       }
     }
 
-    planets = <String>[];
+    planetUrls = <String>[];
     if (map.containsKey('planets') && map['planets'] is List) {
       for (var i = 0; i < map['planets'].length; i++) {
-        planets.add(map['planets'][i]);
+        planetUrls.add(map['planets'][i]);
       }
     }
   }
@@ -122,11 +118,11 @@ class FilmsItem {
       'director': director,
       'producer': producer,
       'releaseDate': releaseDate,
-      'species': species,
-      'starships': starships,
-      'vehicles': vehicles,
-      'characters': characters,
-      'planets': planets,
+      'species': specieUrls,
+      'starships': starshipUrls,
+      'vehicles': vehicleUrls,
+      'characters': characterUrls,
+      'planets': planetUrls,
       'url': url,
       'created': created,
       'edited': edited,
@@ -139,7 +135,7 @@ class FilmsItem {
 
   @override
   String toString() {
-    return 'FilmsItem(title: $title, episodeId: $episodeId, openingCrawl: $openingCrawl, director: $director, producer: $producer, releaseDate: $releaseDate, species: $species, starships: $starships, vehicles: $vehicles, characters: $characters, planets: $planets, url: $url, created: $created, edited: $edited)';
+    return 'FilmsItem(title: $title, episodeId: $episodeId, openingCrawl: $openingCrawl, director: $director, producer: $producer, releaseDate: $releaseDate, species: $specieUrls, starships: $starshipUrls, vehicles: $vehicleUrls, characters: $characterUrls, planets: $planetUrls, url: $url, created: $created, edited: $edited)';
   }
 
   @override
@@ -153,11 +149,11 @@ class FilmsItem {
         other.director == director &&
         other.producer == producer &&
         other.releaseDate == releaseDate &&
-        other.species == species &&
-        other.starships == starships &&
-        other.vehicles == vehicles &&
-        other.characters == characters &&
-        other.planets == planets &&
+        other.specieUrls == specieUrls &&
+        other.starshipUrls == starshipUrls &&
+        other.vehicleUrls == vehicleUrls &&
+        other.characterUrls == characterUrls &&
+        other.planetUrls == planetUrls &&
         other.url == url &&
         other.created == created &&
         other.edited == edited;
@@ -171,11 +167,11 @@ class FilmsItem {
         director.hashCode ^
         producer.hashCode ^
         releaseDate.hashCode ^
-        species.hashCode ^
-        starships.hashCode ^
-        vehicles.hashCode ^
-        characters.hashCode ^
-        planets.hashCode ^
+        specieUrls.hashCode ^
+        starshipUrls.hashCode ^
+        vehicleUrls.hashCode ^
+        characterUrls.hashCode ^
+        planetUrls.hashCode ^
         url.hashCode ^
         created.hashCode ^
         edited.hashCode;
@@ -204,78 +200,4 @@ class Films extends ResponseList {
     }
     return list;
   }
-}
-
-class FilmsItemAdapter extends TypeAdapter<FilmsItem> {
-  @override
-  final int typeId = 0;
-
-  @override
-  FilmsItem read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    final map = {
-      'title': fields[0] as String,
-      'episode_id': fields[1] as int,
-      'opening_crawl': fields[2] as String,
-      'director': fields[3] as String,
-      'producer': fields[4] as String,
-      'release_date': fields[5] as String,
-      'species': (fields[6] as List).cast<String>(),
-      'starships': (fields[7] as List).cast<String>(),
-      'vehicles': (fields[8] as List).cast<String>(),
-      'characters': (fields[9] as List).cast<String>(),
-      'planets': (fields[10] as List).cast<String>(),
-      'url': fields[11] as String,
-      'created': fields[12] as String,
-      'edited': fields[13] as String,
-    };
-    return FilmsItem(map);
-  }
-
-  @override
-  void write(BinaryWriter writer, FilmsItem obj) {
-    writer
-      ..writeByte(14)
-      ..writeByte(0)
-      ..write(obj.title)
-      ..writeByte(1)
-      ..write(obj.episodeId)
-      ..writeByte(2)
-      ..write(obj.openingCrawl)
-      ..writeByte(3)
-      ..write(obj.director)
-      ..writeByte(4)
-      ..write(obj.producer)
-      ..writeByte(5)
-      ..write(obj.releaseDate)
-      ..writeByte(6)
-      ..write(obj.species)
-      ..writeByte(7)
-      ..write(obj.starships)
-      ..writeByte(8)
-      ..write(obj.vehicles)
-      ..writeByte(9)
-      ..write(obj.characters)
-      ..writeByte(10)
-      ..write(obj.planets)
-      ..writeByte(11)
-      ..write(obj.url)
-      ..writeByte(12)
-      ..write(obj.created)
-      ..writeByte(13)
-      ..write(obj.edited);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FilmsItemAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
 }

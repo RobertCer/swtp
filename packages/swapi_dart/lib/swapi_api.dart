@@ -1,20 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:swtp/models/films.dart';
-import 'package:swtp/models/people.dart';
-import 'package:swtp/models/planet.dart';
-import 'package:swtp/models/species.dart';
-import 'package:swtp/models/starships.dart';
-import 'package:swtp/models/vehicles.dart';
+import 'package:swapi_dart/swapi_dart.dart';
+
+import 'models/films.dart';
+import 'models/people.dart';
+import 'models/planet.dart';
+import 'models/species.dart';
+import 'models/starships.dart';
+import 'models/vehicles.dart';
 
 class Swapi {
   static const String _baseUrl = 'https://swapi.dev/api/';
   static const String _resourcePeople = 'people/';
-  static const String _resourceSpecies = 'species/';
-  static const String _resourcePlanets = 'planets/';
-  static const String _resourceStarships = 'starships/';
-  static const String _resourceVehicles = 'vehicles/';
 
   static Future<List<PeopleItem>> searchAllPeople(String name,
       {bool onIsolate = true}) {
@@ -130,14 +128,19 @@ class Swapi {
     bool forceHttps,
   ) {
     final httpClient = http.Client();
-    final urlRequest =
-        Uri.parse(forceHttps ? url.replaceAll('http:', 'https:') : url);
+    final urlRequest = Uri.parse(
+      forceHttps ? url.replaceAll('http:', 'https:') : url,
+    );
     return httpClient.get(urlRequest).then((response) {
       final responseBody = utf8.decode(response.bodyBytes);
       if (response.statusCode == 200) {
         return json.decode(responseBody);
+      } else {
+        throw SwapiException(
+          message: responseBody,
+          responseCode: response.statusCode,
+        );
       }
-      throw ('code: ${response.statusCode}, message: $responseBody');
     });
   }
 }

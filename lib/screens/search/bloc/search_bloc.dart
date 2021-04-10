@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:swtp/models/people.dart';
+import 'package:swapi_dart/swapi_dart.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';

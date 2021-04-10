@@ -8,7 +8,7 @@ abstract class DetailsEvent extends Equatable {
 }
 
 class DetailsEventLoad extends DetailsEvent {
-  const DetailsEventLoad(this.peopleItem);
+  const DetailsEventLoad(this.swapiItem);
 
-  final PeopleItem peopleItem;
+  final SwapiItem swapiItem;
 }

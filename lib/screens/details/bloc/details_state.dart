@@ -12,11 +12,11 @@ class DetailsStateInitial extends DetailsState {}
 class DetailsStateLoading extends DetailsState {}
 
 class DetailsStateLoaded extends DetailsState {
-  const DetailsStateLoaded(this.peopleItemDetailed);
-  final PeopleItemDetailed peopleItemDetailed;
+  const DetailsStateLoaded(this.detailedSwapiItem);
+  final DetailedSwapiItem detailedSwapiItem;
 
   @override
-  List<Object> get props => [peopleItemDetailed];
+  List<Object> get props => [detailedSwapiItem];
 }
 
 class DetailsStateError extends DetailsState {

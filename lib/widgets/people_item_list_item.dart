@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swtp/models/people.dart';
+import 'package:swapi_dart/swapi_dart.dart';
 
 class PeopleItemListItem extends StatelessWidget {
   final PeopleItem peopleItem;

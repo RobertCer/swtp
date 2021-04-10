@@ -1,28 +1,34 @@
-import 'package:swtp/models/films.dart';
-import 'package:swtp/models/people.dart';
-import 'package:swtp/models/planet.dart';
-import 'package:swtp/models/species.dart';
-import 'package:swtp/models/starships.dart';
-import 'package:swtp/models/vehicles.dart';
+import 'package:swapi_dart/swapi_dart.dart';
 
 abstract class Database {
   Future<void> initialize();
 
-  Future<void> saveFilmsItems(List<FilmsItem> items);
-  Future<Map<String, FilmsItem?>> getFilmsItems(List<String> ids);
+  Future<void> saveFilmsItems(List<FilmsItem> items, {bool closeAfter = false});
+  Future<Map<String, FilmsItem?>> getFilmsItems(List<String> ids,
+      {bool closeAfter = false});
 
-  Future<void> saveSpeciesItems(List<SpeciesItem> items);
-  Future<Map<String, SpeciesItem?>> getSpeciesItems(List<String> ids);
+  Future<void> saveSpeciesItems(List<SpeciesItem> items,
+      {bool closeAfter = false});
+  Future<Map<String, SpeciesItem?>> getSpeciesItems(List<String> ids,
+      {bool closeAfter = false});
 
-  Future<void> savePlanetsItem(List<PlanetsItem> items);
-  Future<Map<String, PlanetsItem?>> getPlanetsItems(List<String> ids);
+  Future<void> savePlanetsItem(List<PlanetsItem> items,
+      {bool closeAfter = false});
+  Future<Map<String, PlanetsItem?>> getPlanetsItems(List<String> ids,
+      {bool closeAfter = false});
 
-  Future<void> saveStarshipsItems(List<StarshipsItem> items);
-  Future<Map<String, StarshipsItem?>> getStarshipsItems(List<String> ids);
+  Future<void> saveStarshipsItems(List<StarshipsItem> items,
+      {bool closeAfter = false});
+  Future<Map<String, StarshipsItem?>> getStarshipsItems(List<String> ids,
+      {bool closeAfter = false});
 
-  Future<void> saveVehiclesItems(List<VehiclesItem> items);
-  Future<Map<String, VehiclesItem?>> getVehiclesItems(List<String> ids);
+  Future<void> saveVehiclesItems(List<VehiclesItem> items,
+      {bool closeAfter = false});
+  Future<Map<String, VehiclesItem?>> getVehiclesItems(List<String> ids,
+      {bool closeAfter = false});
 
-  Future<void> savePeopleItems(List<PeopleItem> items);
-  Future<Map<String, PeopleItem?>> getPeopleItems(List<String> ids);
+  Future<void> savePeopleItems(List<PeopleItem> items,
+      {bool closeAfter = false});
+  Future<Map<String, PeopleItem?>> getPeopleItems(List<String> ids,
+      {bool closeAfter = false});
 }

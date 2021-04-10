@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swtp/models/people.dart';
-import 'package:swtp/repositories/swapi.dart';
+import 'package:swapi_dart/swapi_dart.dart';
 import 'package:swtp/screens/details/details_screen.dart';
 import 'package:swtp/widgets/people_item_list_item.dart';
 
@@ -59,25 +58,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildResults() {
     final list = List.from(_peopleItemList);
-    // return ListView.builder(
-    //   // padding: EdgeInsets.only(top: topPadding),
-    //   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-    //   shrinkWrap: true,
-    //   primary: true,
-    //   // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    //   //   crossAxisCount: 1,
-    //   //   childAspectRatio: 2,
-    //   // ),
-    //   itemCount: list.length,
-    //   itemBuilder: (BuildContext context, int index) {
-    //     final peopleItem = list[index];
-    //     return PeopleItemListItem(
-    //       peopleItem: peopleItem,
-    //       // onPressed: onPressed,
-    //     );
-    //   },
-    // );
-    //
     const padding = 8.0;
 
     switch (_viewType) {
@@ -155,6 +135,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onSubmitted: (val) => _searchFor(val),
               scrollPadding: EdgeInsets.zero,
               decoration: InputDecoration(
+                hintText: 'Search for people',
                 isDense: true,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
