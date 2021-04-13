@@ -3,24 +3,39 @@ import 'dart:convert';
 import 'response_list.dart';
 import 'swapi_item.dart';
 
-/// A Planet resource is a large mass, planet or planetoid in the Star Wars Universe, at the time of 0 ABY.
 class PlanetsItem extends SwapiItem {
-  late String name;
-  late String diameter;
-  late String rotationPeriod;
-  late String orbitalPeriod;
-  late String gravity;
-  late String population;
-  late String climate;
-  late String terrain;
-  late String surfaceWater;
-  late String created;
-  late String edited;
+  late final String name;
+  late final String diameter;
+  late final String rotationPeriod;
+  late final String orbitalPeriod;
+  late final String gravity;
+  late final String population;
+  late final String climate;
+  late final String terrain;
+  late final String surfaceWater;
+  late final String created;
+  late final String edited;
+  late final List<String> residentUrls;
+  late final List<String> filmUrls;
 
-  late List<String> residentUrls;
-  late List<String> filmUrls;
+  PlanetsItem({
+    required String url,
+    required this.name,
+    required this.diameter,
+    required this.rotationPeriod,
+    required this.orbitalPeriod,
+    required this.gravity,
+    required this.population,
+    required this.climate,
+    required this.terrain,
+    required this.surfaceWater,
+    required this.created,
+    required this.edited,
+    required this.residentUrls,
+    required this.filmUrls,
+  }) : super(url: url);
 
-  PlanetsItem(Map map) {
+  PlanetsItem.fromMap(Map map) : super.fromMap(map) {
     if (map.containsKey('name') && map['name'] is String) {
       name = map['name'];
     } else {
@@ -76,12 +91,6 @@ class PlanetsItem extends SwapiItem {
       throw FormatException('surface_water invalid or missing');
     }
 
-    if (map.containsKey('url') && map['url'] is String) {
-      url = map['url'];
-    } else {
-      throw FormatException('url invalid or missing');
-    }
-
     if (map.containsKey('created') && map['created'] is String) {
       created = map['created'];
     } else {
@@ -107,48 +116,52 @@ class PlanetsItem extends SwapiItem {
         residentUrls.add(map['residents'][i]);
       }
     }
-
-    filmUrls = <String>[];
-    if (map.containsKey('films') && map['films'] is List) {
-      for (var i = 0; i < map['films'].length; i++) {
-        filmUrls.add(map['films'][i]);
-      }
-    }
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'diameter': diameter,
-      'rotation_period': rotationPeriod,
-      'orbital_period': orbitalPeriod,
-      'gravity': gravity,
-      'population': population,
-      'climate': climate,
-      'terrain': terrain,
-      'surface_water': surfaceWater,
-      'url': url,
-      'created': created,
-      'edited': edited,
-      'residents': residentUrls,
-      'films': filmUrls,
-    };
+    return super.toMap()
+      ..addAll({
+        'name': name,
+        'diameter': diameter,
+        'rotation_period': rotationPeriod,
+        'orbital_period': orbitalPeriod,
+        'gravity': gravity,
+        'population': population,
+        'climate': climate,
+        'terrain': terrain,
+        'surface_water': surfaceWater,
+        'created': created,
+        'edited': edited,
+        'residents': residentUrls,
+        'films': filmUrls,
+      });
   }
 
   String toJson() => json.encode(toMap());
 
   factory PlanetsItem.fromJson(String source) =>
-      PlanetsItem(json.decode(source));
+      PlanetsItem.fromMap(json.decode(source));
 }
 
-/// Collection of PlanetsItem
 class Planets extends ResponseList {
-  List<PlanetsItem> results;
+  final List<PlanetsItem> results;
 
-  Planets(Map map)
+  Planets({
+    required this.results,
+    required int count,
+    String? next,
+    String? previous,
+  }) : super(
+          count: count,
+          next: next,
+          previous: previous,
+        );
+
+  Planets.fromMap(Map map)
       : results = ResponseList.parseResults<PlanetsItem>(
           map,
-          constructor: (map) => PlanetsItem(map),
+          constructor: (map) => PlanetsItem.fromMap(map),
         ),
-        super(map);
+        super.fromMap(map);
 }

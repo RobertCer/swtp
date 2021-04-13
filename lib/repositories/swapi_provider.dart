@@ -1,4 +1,7 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/foundation.dart';
+import 'package:swapi_dart/swapi_dart.dart';
+
 import 'package:swtp/models/detailed/films_detailed.dart';
 import 'package:swtp/models/detailed/people_detailed.dart';
 import 'package:swtp/models/detailed/planet_detailed.dart';
@@ -6,16 +9,30 @@ import 'package:swtp/models/detailed/species_detailed.dart';
 import 'package:swtp/models/detailed/starships_detailed.dart';
 import 'package:swtp/models/detailed/vehicles_detailed.dart';
 import 'package:swtp/repositories/database.dart';
-import 'package:swapi_dart/swapi_dart.dart';
+
+class SwapiProviderException implements Exception {
+  final String message;
+
+  SwapiProviderException(this.message);
+
+  @override
+  String toString() => message;
+}
 
 class SwapiProvider {
-  final Database _db;
+  SwapiProvider({
+    required Swapi swapi,
+    required Database database,
+  })   : _swapi = swapi,
+        _db = database;
 
-  const SwapiProvider(Database db) : _db = db;
+  final Database _db;
+  final Swapi _swapi;
 
   Future<PeopleItemDetailed> getPeopleItemDetailed(PeopleItem peopleItem,
       {bool onIsolate = true}) {
-    final args = {'item': peopleItem, 'db': _db};
+    final args = Args(database: _db, swapi: _swapi, swapiItem: peopleItem);
+
     if (onIsolate) {
       return compute(_getPeopleItemDetailed, args);
     } else {
@@ -23,29 +40,37 @@ class SwapiProvider {
     }
   }
 
-  static Future<PeopleItemDetailed> _getPeopleItemDetailed(Map args) async {
-    final peopleItem = args['item'] as PeopleItem;
-    final db = args['db'] as Database;
+  static Future<PeopleItemDetailed> _getPeopleItemDetailed(Args args) async {
+    final peopleItem = args.swapiItem as PeopleItem;
+    final db = args.database;
+    final swapi = args.swapi;
 
-    final filmsList = await _getFilms(db, peopleItem.filmUrls);
-    final speciesList = await _getSpecies(db, peopleItem.specieUrls);
-    final starShipsList = await _getStarships(db, peopleItem.starShipUrls);
-    final vehiclesList = await _getVehicles(db, peopleItem.vehicleUrls);
-    final homeWorld = await _getHomeWorld(db, peopleItem.homeWorldUrl);
+    try {
+      final filmsList = await _getFilms(swapi, db, peopleItem.filmUrls);
+      final speciesList = await _getSpecies(swapi, db, peopleItem.specieUrls);
+      final starShipsList =
+          await _getStarships(swapi, db, peopleItem.starShipUrls);
+      final vehiclesList =
+          await _getVehicles(swapi, db, peopleItem.vehicleUrls);
+      final homeWorld = await _getHomeWorld(swapi, db, peopleItem.homeWorldUrl);
 
-    return PeopleItemDetailed(
-      peopleItem: peopleItem,
-      filmsList: filmsList,
-      speciesList: speciesList,
-      starShipsList: starShipsList,
-      vehiclesList: vehiclesList,
-      homeWorld: homeWorld,
-    );
+      return PeopleItemDetailed(
+        peopleItem: peopleItem,
+        filmsList: filmsList,
+        speciesList: speciesList,
+        starShipsList: starShipsList,
+        vehiclesList: vehiclesList,
+        homeWorld: homeWorld,
+      );
+    } on SwapiException catch (err) {
+      throw SwapiProviderException(err.message);
+    }
   }
 
   Future<FilmsItemDetailed> getFilmsItemDetailed(FilmsItem filmsItem,
       {bool onIsolate = true}) {
-    final args = {'item': filmsItem, 'db': _db};
+    final args = Args(database: _db, swapi: _swapi, swapiItem: filmsItem);
+
     if (onIsolate) {
       return compute(_getFilmsItemDetailed, args);
     } else {
@@ -53,15 +78,16 @@ class SwapiProvider {
     }
   }
 
-  static Future<FilmsItemDetailed> _getFilmsItemDetailed(Map args) async {
-    final filmsItem = args['item'] as FilmsItem;
-    final db = args['db'] as Database;
+  static Future<FilmsItemDetailed> _getFilmsItemDetailed(Args args) async {
+    final filmsItem = args.swapiItem as FilmsItem;
+    final db = args.database;
+    final swapi = args.swapi;
 
-    final species = await _getSpecies(db, filmsItem.specieUrls);
-    final starships = await _getStarships(db, filmsItem.starshipUrls);
-    final characters = await _getPeople(db, filmsItem.characterUrls);
-    final planets = await _getPlanets(db, filmsItem.planetUrls);
-    final vehicles = await _getVehicles(db, filmsItem.vehicleUrls);
+    final species = await _getSpecies(swapi, db, filmsItem.specieUrls);
+    final starships = await _getStarships(swapi, db, filmsItem.starshipUrls);
+    final characters = await _getPeople(swapi, db, filmsItem.characterUrls);
+    final planets = await _getPlanets(swapi, db, filmsItem.planetUrls);
+    final vehicles = await _getVehicles(swapi, db, filmsItem.vehicleUrls);
 
     return FilmsItemDetailed(
       swapiItem: filmsItem,
@@ -75,7 +101,7 @@ class SwapiProvider {
 
   Future<PlanetsItemDetailed> getPlanetsItemDetailed(PlanetsItem planetsItem,
       {bool onIsolate = true}) {
-    final args = {'item': planetsItem, 'db': _db};
+    final args = Args(database: _db, swapi: _swapi, swapiItem: planetsItem);
     if (onIsolate) {
       return compute(_getPlanetsItemDetailed, args);
     } else {
@@ -83,12 +109,13 @@ class SwapiProvider {
     }
   }
 
-  static Future<PlanetsItemDetailed> _getPlanetsItemDetailed(Map args) async {
-    final planetsItem = args['item'] as PlanetsItem;
-    final db = args['db'] as Database;
+  static Future<PlanetsItemDetailed> _getPlanetsItemDetailed(Args args) async {
+    final planetsItem = args.swapiItem as PlanetsItem;
+    final db = args.database;
+    final swapi = args.swapi;
 
-    final residents = await _getPeople(db, planetsItem.residentUrls);
-    final films = await _getFilms(db, planetsItem.filmUrls);
+    final residents = await _getPeople(swapi, db, planetsItem.residentUrls);
+    final films = await _getFilms(swapi, db, planetsItem.filmUrls);
 
     return PlanetsItemDetailed(
       swapiItem: planetsItem,
@@ -99,7 +126,7 @@ class SwapiProvider {
 
   Future<SpeciesItemDetailed> getSpeciesItemsDetailed(SpeciesItem speciesItem,
       {bool onIsolate = true}) {
-    final args = {'item': speciesItem, 'db': _db};
+    final args = Args(database: _db, swapi: _swapi, swapiItem: speciesItem);
     if (onIsolate) {
       return compute(_getSpeciesItemsDetailed, args);
     } else {
@@ -107,15 +134,16 @@ class SwapiProvider {
     }
   }
 
-  static Future<SpeciesItemDetailed> _getSpeciesItemsDetailed(Map args) async {
-    final speciesItem = args['item'] as SpeciesItem;
-    final db = args['db'] as Database;
+  static Future<SpeciesItemDetailed> _getSpeciesItemsDetailed(Args args) async {
+    final speciesItem = args.swapiItem as SpeciesItem;
+    final db = args.database;
+    final swapi = args.swapi;
 
     final homeworld = speciesItem.homeworldUrl != null
-        ? await _getHomeWorld(db, speciesItem.homeworldUrl!)
+        ? await _getHomeWorld(swapi, db, speciesItem.homeworldUrl!)
         : null;
-    final films = await _getFilms(db, speciesItem.filmUrls);
-    final people = await _getPeople(db, speciesItem.peopleUrls);
+    final films = await _getFilms(swapi, db, speciesItem.filmUrls);
+    final people = await _getPeople(swapi, db, speciesItem.peopleUrls);
 
     return SpeciesItemDetailed(
       swapiItem: speciesItem,
@@ -128,7 +156,7 @@ class SwapiProvider {
   Future<StarshipsItemDetailed> getStarshipsItemDetailed(
       StarshipsItem speciesItem,
       {bool onIsolate = true}) {
-    final args = {'item': speciesItem, 'db': _db};
+    final args = Args(database: _db, swapi: _swapi, swapiItem: speciesItem);
     if (onIsolate) {
       return compute(_getStarshipsItemDetailed, args);
     } else {
@@ -137,12 +165,13 @@ class SwapiProvider {
   }
 
   static Future<StarshipsItemDetailed> _getStarshipsItemDetailed(
-      Map args) async {
-    final starshipsItem = args['item'] as StarshipsItem;
-    final db = args['db'] as Database;
+      Args args) async {
+    final starshipsItem = args.swapiItem as StarshipsItem;
+    final db = args.database;
+    final swapi = args.swapi;
 
-    final films = await _getFilms(db, starshipsItem.filmUrls);
-    final pilots = await _getPeople(db, starshipsItem.pilotUrls);
+    final films = await _getFilms(swapi, db, starshipsItem.filmUrls);
+    final pilots = await _getPeople(swapi, db, starshipsItem.pilotUrls);
 
     return StarshipsItemDetailed(
       swapiItem: starshipsItem,
@@ -154,7 +183,8 @@ class SwapiProvider {
   Future<VehiclesItemDetailed> getVehiclesItemDetailed(
       VehiclesItem vehiclesItem,
       {bool onIsolate = true}) {
-    final args = {'item': vehiclesItem, 'db': _db};
+    final args = Args(database: _db, swapi: _swapi, swapiItem: vehiclesItem);
+
     if (onIsolate) {
       return compute(_getVehiclesItemDetailed, args);
     } else {
@@ -162,12 +192,14 @@ class SwapiProvider {
     }
   }
 
-  static Future<VehiclesItemDetailed> _getVehiclesItemDetailed(Map args) async {
-    final vehiclesItem = args['item'] as VehiclesItem;
-    final db = args['db'] as Database;
+  static Future<VehiclesItemDetailed> _getVehiclesItemDetailed(
+      Args args) async {
+    final vehiclesItem = args.swapiItem as VehiclesItem;
+    final db = args.database;
+    final swapi = args.swapi;
 
-    final films = await _getFilms(db, vehiclesItem.filmUrls);
-    final pilots = await _getPeople(db, vehiclesItem.pilotUrls);
+    final films = await _getFilms(swapi, db, vehiclesItem.filmUrls);
+    final pilots = await _getPeople(swapi, db, vehiclesItem.pilotUrls);
 
     return VehiclesItemDetailed(
       swapiItem: vehiclesItem,
@@ -177,83 +209,93 @@ class SwapiProvider {
   }
 
   static Future<List<FilmsItem>> _getFilms(
+    Swapi swapi,
     Database db,
     List<String> filmIds,
   ) async {
     return _getMultipleItems<FilmsItem>(
       itemIds: filmIds,
       databaseItemProvider: (ids) => db.getFilmsItems(ids),
-      networkItemProvider: (id) => Swapi.getFilmsItem(id),
+      networkItemProvider: (id) => swapi.getFilmsItem(id),
       databaseSaver: (films) => db.saveFilmsItems(films, closeAfter: true),
     );
   }
 
   static Future<List<PeopleItem>> _getPeople(
+    Swapi swapi,
     Database db,
     List<String> peopleIds,
   ) async {
     return _getMultipleItems<PeopleItem>(
       itemIds: peopleIds,
       databaseItemProvider: (ids) => db.getPeopleItems(ids),
-      networkItemProvider: (id) => Swapi.getPeopleItem(id),
+      networkItemProvider: (id) => swapi.getPeopleItem(id),
       databaseSaver: (items) => db.savePeopleItems(items, closeAfter: true),
     );
   }
 
   static Future<List<PlanetsItem>> _getPlanets(
+    Swapi swapi,
     Database db,
     List<String> planetIds,
   ) async {
     return _getMultipleItems<PlanetsItem>(
       itemIds: planetIds,
       databaseItemProvider: (ids) => db.getPlanetsItems(ids),
-      networkItemProvider: (id) => Swapi.getPlanetsItem(id),
+      networkItemProvider: (id) => swapi.getPlanetsItem(id),
       databaseSaver: (items) => db.savePlanetsItem(items, closeAfter: true),
     );
   }
 
   static Future<List<SpeciesItem>> _getSpecies(
+    Swapi swapi,
     Database db,
     List<String> speciesIds,
   ) async {
     return _getMultipleItems<SpeciesItem>(
       itemIds: speciesIds,
       databaseItemProvider: (ids) => db.getSpeciesItems(ids),
-      networkItemProvider: (id) => Swapi.getSpeciesItem(id),
+      networkItemProvider: (id) => swapi.getSpeciesItem(id),
       databaseSaver: (items) => db.saveSpeciesItems(items, closeAfter: true),
     );
   }
 
   static Future<List<StarshipsItem>> _getStarships(
+    Swapi swapi,
     Database db,
     List<String> starshipIds,
   ) async {
     return _getMultipleItems<StarshipsItem>(
       itemIds: starshipIds,
       databaseItemProvider: (ids) => db.getStarshipsItems(ids),
-      networkItemProvider: (id) => Swapi.getStarshipsItem(id),
+      networkItemProvider: (id) => swapi.getStarshipsItem(id),
       databaseSaver: (items) => db.saveStarshipsItems(items, closeAfter: true),
     );
   }
 
   static Future<List<VehiclesItem>> _getVehicles(
+    Swapi swapi,
     Database db,
     List<String> vehicleIds,
   ) async {
     return _getMultipleItems<VehiclesItem>(
       itemIds: vehicleIds,
       databaseItemProvider: (ids) => db.getVehiclesItems(ids),
-      networkItemProvider: (id) => Swapi.getVehiclesItem(id),
+      networkItemProvider: (id) => swapi.getVehiclesItem(id),
       databaseSaver: (items) => db.saveVehiclesItems(items, closeAfter: true),
     );
   }
 
-  static Future<PlanetsItem> _getHomeWorld(Database db, String id) {
+  static Future<PlanetsItem> _getHomeWorld(
+    Swapi swapi,
+    Database db,
+    String id,
+  ) {
     return _getSingleItem<PlanetsItem>(
       itemId: id,
       databaseItemProvider: (id) =>
           db.getPlanetsItems([id]).then((value) => value[id]),
-      networkItemProvider: (id) => Swapi.getPlanetsItem(id),
+      networkItemProvider: (id) => swapi.getPlanetsItem(id),
       databaseSaver: (items) => db.savePlanetsItem(items, closeAfter: true),
     );
   }
@@ -269,6 +311,7 @@ class SwapiProvider {
     final missingItems = <Future<T>>[];
     map.forEach((key, value) {
       if (value == null) {
+        // TODO: Ensure internet connection
         missingItems.add(networkItemProvider(key));
       } else {
         items.add(value);
@@ -307,3 +350,14 @@ typedef MaybeSingleItemProvider<T> = Future<T?> Function(String);
 typedef SingleItemProvider<T> = Future<T> Function(String);
 
 typedef DatabaseSaver<T> = Future<void> Function(List<T>);
+
+class Args {
+  Swapi swapi;
+  Database database;
+  SwapiItem swapiItem;
+  Args({
+    required this.swapi,
+    required this.database,
+    required this.swapiItem,
+  });
+}

@@ -11,62 +11,59 @@ class SpeciesItemAdapter extends TypeAdapter<SpeciesItem> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-
-    final map = {
-      'name': fields[0] as String,
-      'classification': fields[1] as String,
-      'designation': fields[2] as String,
-      'average_height': fields[3] as String,
-      'average_lifespan': fields[4] as String,
-      'eye_colors': fields[5] as String,
-      'hair_colors': fields[6] as String,
-      'skin_colors': fields[7] as String,
-      'language': fields[8] as String,
-      'homeworld': fields[9] as String?,
-      'people': (fields[10] as List).cast<String>(),
-      'films': (fields[11] as List).cast<String>(),
-      'url': fields[12] as String,
-      'created': fields[13] as String,
-      'edited': fields[14] as String,
-    };
-
-    return SpeciesItem(map);
+    return SpeciesItem(
+      url: fields[0] as String,
+      name: fields[1] as String,
+      classification: fields[2] as String,
+      designation: fields[3] as String,
+      averageHeight: fields[4] as String,
+      averageLifespan: fields[5] as String,
+      eyeColors: fields[6] as String,
+      hairColors: fields[7] as String,
+      skinColors: fields[8] as String,
+      language: fields[9] as String,
+      homeworldUrl: fields[10] as String?,
+      peopleUrls: (fields[11] as List).cast<String>(),
+      filmUrls: (fields[12] as List).cast<String>(),
+      created: fields[13] as String,
+      edited: fields[14] as String,
+    );
   }
 
   @override
   void write(BinaryWriter writer, SpeciesItem obj) {
     writer
       ..writeByte(15)
-      ..writeByte(0)
-      ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.classification)
+      ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.designation)
+      ..write(obj.classification)
       ..writeByte(3)
-      ..write(obj.averageHeight)
+      ..write(obj.designation)
       ..writeByte(4)
-      ..write(obj.averageLifespan)
+      ..write(obj.averageHeight)
       ..writeByte(5)
-      ..write(obj.eyeColors)
+      ..write(obj.averageLifespan)
       ..writeByte(6)
-      ..write(obj.hairColors)
+      ..write(obj.eyeColors)
       ..writeByte(7)
-      ..write(obj.skinColors)
+      ..write(obj.hairColors)
       ..writeByte(8)
-      ..write(obj.language)
+      ..write(obj.skinColors)
       ..writeByte(9)
-      ..write(obj.homeworldUrl)
+      ..write(obj.language)
       ..writeByte(10)
-      ..write(obj.peopleUrls)
+      ..write(obj.homeworldUrl)
       ..writeByte(11)
-      ..write(obj.filmUrls)
+      ..write(obj.peopleUrls)
       ..writeByte(12)
-      ..write(obj.url)
+      ..write(obj.filmUrls)
       ..writeByte(13)
       ..write(obj.created)
       ..writeByte(14)
-      ..write(obj.edited);
+      ..write(obj.edited)
+      ..writeByte(0)
+      ..write(obj.url);
   }
 
   @override

@@ -4,23 +4,42 @@ import 'response_list.dart';
 import 'swapi_item.dart';
 
 class VehiclesItem extends SwapiItem {
-  late String name;
-  late String model;
-  late String vehicleClass;
-  late String manufacturer;
-  late String length;
-  late String costInCredits;
-  late String crew;
-  late String passengers;
-  late String maxAtmospheringSpeed;
-  late String cargoCapacity;
-  late String consumables;
-  late List<String> filmUrls;
-  late List<String> pilotUrls;
-  late String created;
-  late String edited;
+  late final String name;
+  late final String model;
+  late final String vehicleClass;
+  late final String manufacturer;
+  late final String length;
+  late final String costInCredits;
+  late final String crew;
+  late final String passengers;
+  late final String maxAtmospheringSpeed;
+  late final String cargoCapacity;
+  late final String consumables;
+  late final List<String> filmUrls;
+  late final List<String> pilotUrls;
+  late final String created;
+  late final String edited;
 
-  VehiclesItem(Map map) {
+  VehiclesItem({
+    required String url,
+    required this.name,
+    required this.model,
+    required this.vehicleClass,
+    required this.manufacturer,
+    required this.length,
+    required this.costInCredits,
+    required this.crew,
+    required this.passengers,
+    required this.maxAtmospheringSpeed,
+    required this.cargoCapacity,
+    required this.consumables,
+    required this.filmUrls,
+    required this.pilotUrls,
+    required this.created,
+    required this.edited,
+  }) : super(url: url);
+
+  VehiclesItem.fromMap(Map map) : super.fromMap(map) {
     if (map.containsKey('name') && map['name'] is String) {
       name = map['name'];
     } else {
@@ -89,12 +108,6 @@ class VehiclesItem extends SwapiItem {
       throw FormatException('consumables invalid or missing');
     }
 
-    if (map.containsKey('url') && map['url'] is String) {
-      url = map['url'];
-    } else {
-      throw FormatException('url invalid or missing');
-    }
-
     if (map.containsKey('created') && map['created'] is String) {
       created = map['created'];
     } else {
@@ -122,31 +135,32 @@ class VehiclesItem extends SwapiItem {
     }
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'model': model,
-      'vehicle_class': vehicleClass,
-      'manufacturer': manufacturer,
-      'length': length,
-      'cost_in_credits': costInCredits,
-      'crew': crew,
-      'passengers': passengers,
-      'max_atmosphering_speed': maxAtmospheringSpeed,
-      'cargo_capacity': cargoCapacity,
-      'consumables': consumables,
-      'films': filmUrls,
-      'pilots': pilotUrls,
-      'url': url,
-      'created': created,
-      'edited': edited,
-    };
+    return super.toMap()
+      ..addAll({
+        'name': name,
+        'model': model,
+        'vehicle_class': vehicleClass,
+        'manufacturer': manufacturer,
+        'length': length,
+        'cost_in_credits': costInCredits,
+        'crew': crew,
+        'passengers': passengers,
+        'max_atmosphering_speed': maxAtmospheringSpeed,
+        'cargo_capacity': cargoCapacity,
+        'consumables': consumables,
+        'films': filmUrls,
+        'pilots': pilotUrls,
+        'created': created,
+        'edited': edited,
+      });
   }
 
   String toJson() => json.encode(toMap());
 
   factory VehiclesItem.fromJson(String source) =>
-      VehiclesItem(json.decode(source));
+      VehiclesItem.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -197,14 +211,24 @@ class VehiclesItem extends SwapiItem {
   }
 }
 
-/// Collection of VehiclesItem
 class Vehicles extends ResponseList {
   List<VehiclesItem> results;
 
-  Vehicles(Map map)
+  Vehicles({
+    required this.results,
+    required int count,
+    String? next,
+    String? previous,
+  }) : super(
+          count: count,
+          next: next,
+          previous: previous,
+        );
+
+  Vehicles.fromMap(Map map)
       : results = ResponseList.parseResults<VehiclesItem>(
           map,
-          constructor: (map) => VehiclesItem(map),
+          constructor: (map) => VehiclesItem.fromMap(map),
         ),
-        super(map);
+        super.fromMap(map);
 }

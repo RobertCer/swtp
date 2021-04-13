@@ -6,4 +6,7 @@ class SwapiException implements Exception {
 
   final String message;
   final int responseCode;
+
+  @override
+  String toString() => message;
 }

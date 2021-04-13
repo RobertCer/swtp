@@ -3,24 +3,41 @@ import 'dart:convert';
 import 'response_list.dart';
 import 'swapi_item.dart';
 
-/// A Species resource is a type of person or character within the Star Wars Universe.
 class SpeciesItem extends SwapiItem {
-  late String name;
-  late String classification;
-  late String designation;
-  late String averageHeight;
-  late String averageLifespan;
-  late String eyeColors;
-  late String hairColors;
-  late String skinColors;
-  late String language;
-  String? homeworldUrl;
-  late List<String> peopleUrls;
-  late List<String> filmUrls;
-  late String created;
-  late String edited;
+  late final String name;
+  late final String classification;
+  late final String designation;
+  late final String averageHeight;
+  late final String averageLifespan;
+  late final String eyeColors;
+  late final String hairColors;
+  late final String skinColors;
+  late final String language;
+  late final String? homeworldUrl;
+  late final List<String> peopleUrls;
+  late final List<String> filmUrls;
+  late final String created;
+  late final String edited;
 
-  SpeciesItem(Map map) {
+  SpeciesItem({
+    required String url,
+    required this.name,
+    required this.classification,
+    required this.designation,
+    required this.averageHeight,
+    required this.averageLifespan,
+    required this.eyeColors,
+    required this.hairColors,
+    required this.skinColors,
+    required this.language,
+    this.homeworldUrl,
+    required this.peopleUrls,
+    required this.filmUrls,
+    required this.created,
+    required this.edited,
+  }) : super(url: url);
+
+  SpeciesItem.fromMap(Map map) : super.fromMap(map) {
     if (map.containsKey('name') && map['name'] is String) {
       name = map['name'];
     } else {
@@ -78,15 +95,8 @@ class SpeciesItem extends SwapiItem {
 
     if (map.containsKey('homeworld') && map['homeworld'] is String) {
       homeworldUrl = map['homeworld'];
-    }
-    // else {
-    //   throw FormatException('homeworld invalid or missing');
-    // }
-
-    if (map.containsKey('url') && map['url'] is String) {
-      url = map['url'];
     } else {
-      throw FormatException('url invalid or missing');
+      homeworldUrl = null;
     }
 
     if (map.containsKey('created') && map['created'] is String) {
@@ -116,30 +126,31 @@ class SpeciesItem extends SwapiItem {
     }
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'classification': classification,
-      'designation': designation,
-      'average_height': averageHeight,
-      'average_lifespan': averageLifespan,
-      'eye_colors': eyeColors,
-      'hair_colors': hairColors,
-      'skin_colors': skinColors,
-      'language': language,
-      'homeworld': homeworldUrl,
-      'people': peopleUrls,
-      'films': filmUrls,
-      'url': url,
-      'created': created,
-      'edited': edited,
-    };
+    return super.toMap()
+      ..addAll({
+        'name': name,
+        'classification': classification,
+        'designation': designation,
+        'average_height': averageHeight,
+        'average_lifespan': averageLifespan,
+        'eye_colors': eyeColors,
+        'hair_colors': hairColors,
+        'skin_colors': skinColors,
+        'language': language,
+        'homeworld': homeworldUrl,
+        'people': peopleUrls,
+        'films': filmUrls,
+        'created': created,
+        'edited': edited,
+      });
   }
 
   String toJson() => json.encode(toMap());
 
   factory SpeciesItem.fromJson(String source) =>
-      SpeciesItem(json.decode(source));
+      SpeciesItem.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -188,14 +199,24 @@ class SpeciesItem extends SwapiItem {
   }
 }
 
-/// Collection of SpeciesItem
 class Species extends ResponseList {
-  List<SpeciesItem> results;
+  final List<SpeciesItem> results;
 
-  Species(Map map)
+  Species({
+    required this.results,
+    required int count,
+    String? next,
+    String? previous,
+  }) : super(
+          count: count,
+          next: next,
+          previous: previous,
+        );
+
+  Species.fromMap(Map map)
       : results = ResponseList.parseResults<SpeciesItem>(
           map,
-          constructor: (map) => SpeciesItem(map),
+          constructor: (map) => SpeciesItem.fromMap(map),
         ),
-        super(map);
+        super.fromMap(map);
 }

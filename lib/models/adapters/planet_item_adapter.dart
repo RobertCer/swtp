@@ -3,7 +3,7 @@ import 'package:swapi_dart/swapi_dart.dart';
 
 class PlanetsItemAdapter extends TypeAdapter<PlanetsItem> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
   PlanetsItem read(BinaryReader reader) {
@@ -11,49 +11,46 @@ class PlanetsItemAdapter extends TypeAdapter<PlanetsItem> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    final map = {
-      'name': fields[0] as String,
-      'diameter': fields[1] as String,
-      'rotation_period': fields[2] as String,
-      'orbital_period': fields[3] as String,
-      'gravity': fields[4] as String,
-      'population': fields[5] as String,
-      'climate': fields[6] as String,
-      'terrain': fields[7] as String,
-      'surface_water': fields[8] as String,
-      'url': fields[9] as String,
-      'created': fields[10] as String,
-      'edited': fields[11] as String,
-      'residents': (fields[12] as List).cast<String>(),
-      'films': (fields[13] as List).cast<String>(),
-    };
-    return PlanetsItem(map);
+    return PlanetsItem(
+      url: fields[0] as String,
+      name: fields[1] as String,
+      diameter: fields[2] as String,
+      rotationPeriod: fields[3] as String,
+      orbitalPeriod: fields[4] as String,
+      gravity: fields[5] as String,
+      population: fields[6] as String,
+      climate: fields[7] as String,
+      terrain: fields[8] as String,
+      surfaceWater: fields[9] as String,
+      created: fields[10] as String,
+      edited: fields[11] as String,
+      residentUrls: (fields[12] as List).cast<String>(),
+      filmUrls: (fields[13] as List).cast<String>(),
+    );
   }
 
   @override
   void write(BinaryWriter writer, PlanetsItem obj) {
     writer
       ..writeByte(14)
-      ..writeByte(0)
-      ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.diameter)
+      ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.rotationPeriod)
+      ..write(obj.diameter)
       ..writeByte(3)
-      ..write(obj.orbitalPeriod)
+      ..write(obj.rotationPeriod)
       ..writeByte(4)
-      ..write(obj.gravity)
+      ..write(obj.orbitalPeriod)
       ..writeByte(5)
-      ..write(obj.population)
+      ..write(obj.gravity)
       ..writeByte(6)
-      ..write(obj.climate)
+      ..write(obj.population)
       ..writeByte(7)
-      ..write(obj.terrain)
+      ..write(obj.climate)
       ..writeByte(8)
-      ..write(obj.surfaceWater)
+      ..write(obj.terrain)
       ..writeByte(9)
-      ..write(obj.url)
+      ..write(obj.surfaceWater)
       ..writeByte(10)
       ..write(obj.created)
       ..writeByte(11)
@@ -61,7 +58,9 @@ class PlanetsItemAdapter extends TypeAdapter<PlanetsItem> {
       ..writeByte(12)
       ..write(obj.residentUrls)
       ..writeByte(13)
-      ..write(obj.filmUrls);
+      ..write(obj.filmUrls)
+      ..writeByte(0)
+      ..write(obj.url);
   }
 
   @override

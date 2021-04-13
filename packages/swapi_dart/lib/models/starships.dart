@@ -4,25 +4,46 @@ import 'response_list.dart';
 import 'swapi_item.dart';
 
 class StarshipsItem extends SwapiItem {
-  late String name;
-  late String model;
-  late String starshipClass;
-  late String manufacturer;
-  late String costInCredits;
-  late String length;
-  late String crew;
-  late String passengers;
-  late String maxAtmospheringSpeed;
-  late String hyperdriveRating;
-  late String mglt;
-  late String cargoCapacity;
-  late String consumables;
-  late List<String> filmUrls;
-  late List<String> pilotUrls;
-  late String created;
-  late String edited;
+  late final String name;
+  late final String model;
+  late final String starshipClass;
+  late final String manufacturer;
+  late final String costInCredits;
+  late final String length;
+  late final String crew;
+  late final String passengers;
+  late final String maxAtmospheringSpeed;
+  late final String hyperdriveRating;
+  late final String mglt;
+  late final String cargoCapacity;
+  late final String consumables;
+  late final List<String> filmUrls;
+  late final List<String> pilotUrls;
+  late final String created;
+  late final String edited;
 
-  StarshipsItem(Map map) {
+  StarshipsItem({
+    required String url,
+    required this.name,
+    required this.model,
+    required this.starshipClass,
+    required this.manufacturer,
+    required this.costInCredits,
+    required this.length,
+    required this.crew,
+    required this.passengers,
+    required this.maxAtmospheringSpeed,
+    required this.hyperdriveRating,
+    required this.mglt,
+    required this.cargoCapacity,
+    required this.consumables,
+    required this.filmUrls,
+    required this.pilotUrls,
+    required this.created,
+    required this.edited,
+  }) : super(url: url);
+
+  StarshipsItem.fromMap(Map map) : super.fromMap(map) {
     if (map.containsKey('name') && map['name'] is String) {
       name = map['name'];
     } else {
@@ -104,12 +125,6 @@ class StarshipsItem extends SwapiItem {
       throw FormatException('consumables invalid or missing');
     }
 
-    if (map.containsKey('url') && map['url'] is String) {
-      url = map['url'];
-    } else {
-      throw FormatException('url invalid or missing');
-    }
-
     if (map.containsKey('created') && map['created'] is String) {
       created = map['created'];
     } else {
@@ -137,33 +152,34 @@ class StarshipsItem extends SwapiItem {
     }
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'model': model,
-      'starship_class': starshipClass,
-      'manufacturer': manufacturer,
-      'cost_in_credits': costInCredits,
-      'length': length,
-      'crew': crew,
-      'passengers': passengers,
-      'max_atmosphering_speed': maxAtmospheringSpeed,
-      'hyperdrive_rating': hyperdriveRating,
-      'MGLT': mglt,
-      'cargo_capacity': cargoCapacity,
-      'consumables': consumables,
-      'films': filmUrls,
-      'pilots': pilotUrls,
-      'url': url,
-      'created': created,
-      'edited': edited,
-    };
+    return super.toMap()
+      ..addAll({
+        'name': name,
+        'model': model,
+        'starship_class': starshipClass,
+        'manufacturer': manufacturer,
+        'cost_in_credits': costInCredits,
+        'length': length,
+        'crew': crew,
+        'passengers': passengers,
+        'max_atmosphering_speed': maxAtmospheringSpeed,
+        'hyperdrive_rating': hyperdriveRating,
+        'MGLT': mglt,
+        'cargo_capacity': cargoCapacity,
+        'consumables': consumables,
+        'films': filmUrls,
+        'pilots': pilotUrls,
+        'created': created,
+        'edited': edited,
+      });
   }
 
   String toJson() => json.encode(toMap());
 
   factory StarshipsItem.fromJson(String source) =>
-      StarshipsItem(json.decode(source));
+      StarshipsItem.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -218,14 +234,24 @@ class StarshipsItem extends SwapiItem {
   }
 }
 
-/// Collection of StarshipsItem
 class Starships extends ResponseList {
-  List<StarshipsItem> results;
+  final List<StarshipsItem> results;
 
-  Starships(Map map)
+  Starships({
+    required this.results,
+    required int count,
+    String? next,
+    String? previous,
+  }) : super(
+          count: count,
+          next: next,
+          previous: previous,
+        );
+
+  Starships.fromMap(Map map)
       : results = ResponseList.parseResults<StarshipsItem>(
           map,
-          constructor: (map) => StarshipsItem(map),
+          constructor: (map) => StarshipsItem.fromMap(map),
         ),
-        super(map);
+        super.fromMap(map);
 }

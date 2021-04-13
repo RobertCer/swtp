@@ -11,64 +11,62 @@ class VehiclesItemAdapter extends TypeAdapter<VehiclesItem> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-
-    final map = {
-      'name': fields[0] as String,
-      'model': fields[1] as String,
-      'vehicle_class': fields[2] as String,
-      'manufacturer': fields[3] as String,
-      'length': fields[4] as String,
-      'cost_in_credits': fields[5] as String,
-      'crew': fields[6] as String,
-      'passengers': fields[7] as String,
-      'max_atmosphering_speed': fields[8] as String,
-      'cargo_capacity': fields[9] as String,
-      'consumables': fields[10] as String,
-      'films': (fields[11] as List).cast<String>(),
-      'pilots': (fields[12] as List).cast<String>(),
-      'url': fields[13] as String,
-      'created': fields[14] as String,
-      'edited': fields[15] as String,
-    };
-    return VehiclesItem(map);
+    return VehiclesItem(
+      url: fields[0] as String,
+      name: fields[1] as String,
+      model: fields[2] as String,
+      vehicleClass: fields[3] as String,
+      manufacturer: fields[4] as String,
+      length: fields[5] as String,
+      costInCredits: fields[6] as String,
+      crew: fields[7] as String,
+      passengers: fields[8] as String,
+      maxAtmospheringSpeed: fields[9] as String,
+      cargoCapacity: fields[10] as String,
+      consumables: fields[11] as String,
+      filmUrls: (fields[12] as List).cast<String>(),
+      pilotUrls: (fields[13] as List).cast<String>(),
+      created: fields[14] as String,
+      edited: fields[15] as String,
+    );
   }
 
   @override
   void write(BinaryWriter writer, VehiclesItem obj) {
     writer
       ..writeByte(16)
-      ..writeByte(0)
-      ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.model)
+      ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.vehicleClass)
+      ..write(obj.model)
       ..writeByte(3)
-      ..write(obj.manufacturer)
+      ..write(obj.vehicleClass)
       ..writeByte(4)
-      ..write(obj.length)
+      ..write(obj.manufacturer)
       ..writeByte(5)
-      ..write(obj.costInCredits)
+      ..write(obj.length)
       ..writeByte(6)
-      ..write(obj.crew)
+      ..write(obj.costInCredits)
       ..writeByte(7)
-      ..write(obj.passengers)
+      ..write(obj.crew)
       ..writeByte(8)
-      ..write(obj.maxAtmospheringSpeed)
+      ..write(obj.passengers)
       ..writeByte(9)
-      ..write(obj.cargoCapacity)
+      ..write(obj.maxAtmospheringSpeed)
       ..writeByte(10)
-      ..write(obj.consumables)
+      ..write(obj.cargoCapacity)
       ..writeByte(11)
-      ..write(obj.filmUrls)
+      ..write(obj.consumables)
       ..writeByte(12)
-      ..write(obj.pilotUrls)
+      ..write(obj.filmUrls)
       ..writeByte(13)
-      ..write(obj.url)
+      ..write(obj.pilotUrls)
       ..writeByte(14)
       ..write(obj.created)
       ..writeByte(15)
-      ..write(obj.edited);
+      ..write(obj.edited)
+      ..writeByte(0)
+      ..write(obj.url);
   }
 
   @override

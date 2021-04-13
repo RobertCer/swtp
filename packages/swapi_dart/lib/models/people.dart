@@ -5,25 +5,43 @@ import 'package:flutter/foundation.dart';
 import 'response_list.dart';
 import 'swapi_item.dart';
 
-/// A People resource is an individual person or character within the Star Wars universe.
 class PeopleItem extends SwapiItem {
-  late String name;
-  late String birthYear;
-  late String eyeColor;
-  late String gender;
-  late String hairColor;
-  late String height;
-  late String mass;
-  late String skinColor;
-  late String homeWorldUrl;
-  late String created;
-  late String edited;
-  late List<String> filmUrls;
-  late List<String> specieUrls;
-  late List<String> starShipUrls;
-  late List<String> vehicleUrls;
+  late final String name;
+  late final String birthYear;
+  late final String eyeColor;
+  late final String gender;
+  late final String hairColor;
+  late final String height;
+  late final String mass;
+  late final String skinColor;
+  late final String homeWorldUrl;
+  late final String created;
+  late final String edited;
+  late final List<String> filmUrls;
+  late final List<String> specieUrls;
+  late final List<String> starShipUrls;
+  late final List<String> vehicleUrls;
 
-  PeopleItem(Map map) {
+  PeopleItem({
+    required String url,
+    required this.name,
+    required this.birthYear,
+    required this.eyeColor,
+    required this.gender,
+    required this.hairColor,
+    required this.height,
+    required this.mass,
+    required this.skinColor,
+    required this.homeWorldUrl,
+    required this.created,
+    required this.edited,
+    required this.filmUrls,
+    required this.specieUrls,
+    required this.starShipUrls,
+    required this.vehicleUrls,
+  }) : super(url: url);
+
+  PeopleItem.fromMap(Map map) : super.fromMap(map) {
     if (map.containsKey('name') && map['name'] is String) {
       name = map['name'];
     } else {
@@ -78,12 +96,6 @@ class PeopleItem extends SwapiItem {
       throw FormatException('invalid homeworld');
     }
 
-    if (map.containsKey('url') && map['url'] is String) {
-      url = map['url'];
-    } else {
-      throw FormatException('invalid url');
-    }
-
     if (map.containsKey('created') && map['created'] is String) {
       created = map['created'];
     } else {
@@ -125,30 +137,32 @@ class PeopleItem extends SwapiItem {
     }
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'birth_year': birthYear,
-      'eye_color': eyeColor,
-      'gender': gender,
-      'hair_color': hairColor,
-      'height': height,
-      'mass': mass,
-      'skin_color': skinColor,
-      'homeworld': homeWorldUrl,
-      'url': url,
-      'created': created,
-      'edited': edited,
-      'films': filmUrls,
-      'species': specieUrls,
-      'starships': starShipUrls,
-      'vehicles': vehicleUrls,
-    };
+    return super.toMap()
+      ..addAll({
+        'name': name,
+        'birth_year': birthYear,
+        'eye_color': eyeColor,
+        'gender': gender,
+        'hair_color': hairColor,
+        'height': height,
+        'mass': mass,
+        'skin_color': skinColor,
+        'homeworld': homeWorldUrl,
+        'created': created,
+        'edited': edited,
+        'films': filmUrls,
+        'species': specieUrls,
+        'starships': starShipUrls,
+        'vehicles': vehicleUrls,
+      });
   }
 
   String toJson() => json.encode(toMap());
 
-  factory PeopleItem.fromJson(String source) => PeopleItem(json.decode(source));
+  factory PeopleItem.fromJson(String source) =>
+      PeopleItem.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -200,12 +214,23 @@ class PeopleItem extends SwapiItem {
 }
 
 class People extends ResponseList {
-  List<PeopleItem> results;
+  final List<PeopleItem> results;
 
-  People(Map map)
+  People({
+    required this.results,
+    required int count,
+    String? next,
+    String? previous,
+  }) : super(
+          count: count,
+          next: next,
+          previous: previous,
+        );
+
+  People.fromMap(Map map)
       : results = ResponseList.parseResults<PeopleItem>(
           map,
-          constructor: (map) => PeopleItem(map),
+          constructor: (map) => PeopleItem.fromMap(map),
         ),
-        super(map);
+        super.fromMap(map);
 }

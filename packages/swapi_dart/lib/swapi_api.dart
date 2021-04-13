@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:swapi_dart/swapi_dart.dart';
 
@@ -10,17 +9,40 @@ import 'models/species.dart';
 import 'models/starships.dart';
 import 'models/vehicles.dart';
 
-class Swapi {
+abstract class Swapi {
+  const Swapi._();
+
+  static late final Swapi _instance = SwapiImpl();
+  static Swapi get instance => _instance;
+
+  Future<List<PeopleItem>> searchAllPeople(String name);
+
+  Future<PeopleItem> getPeopleItem(String url, {bool forceHttps = true});
+  Future<People> getPeople(String url, {bool forceHttps = true});
+
+  Future<FilmsItem> getFilmsItem(String url, {bool forceHttps = true});
+  Future<Films> getFilms(String url, {bool forceHttps = true});
+
+  Future<Planets> getPlanets(String url, {bool forceHttps = true});
+  Future<PlanetsItem> getPlanetsItem(String url, {bool forceHttps = true});
+
+  Future<SpeciesItem> getSpeciesItem(String url, {bool forceHttps = true});
+  Future<Species> getSpecies(String url, {bool forceHttps = true});
+
+  Future<VehiclesItem> getVehiclesItem(String url, {bool forceHttps = true});
+  Future<Vehicles> getVehicles(String url, {bool forceHttps = true});
+
+  Future<StarshipsItem> getStarshipsItem(String url, {bool forceHttps = true});
+  Future<Starships> getStarships(String url, {bool forceHttps = true});
+}
+
+class SwapiImpl implements Swapi {
   static const String _baseUrl = 'https://swapi.dev/api/';
   static const String _resourcePeople = 'people/';
 
-  static Future<List<PeopleItem>> searchAllPeople(String name,
-      {bool onIsolate = true}) {
-    if (onIsolate) {
-      return compute(_searchAllPeople, name);
-    } else {
-      return _searchAllPeople(name);
-    }
+  @override
+  Future<List<PeopleItem>> searchAllPeople(String name) {
+    return _searchAllPeople(name);
   }
 
   static Future<People> _searchSinglePeople(String name) async {
@@ -31,12 +53,16 @@ class Swapi {
     final responseBody = utf8.decode(response.bodyBytes);
     if (response.statusCode == 200) {
       final map = json.decode(responseBody);
-      return People(map);
+      return People.fromMap(map);
+    } else {
+      throw SwapiException(
+        message: responseBody,
+        responseCode: response.statusCode,
+      );
     }
-    throw Exception('code: ${response.statusCode}, message: $responseBody');
   }
 
-  static Future<List<PeopleItem>> _searchAllPeople(String name) async {
+  Future<List<PeopleItem>> _searchAllPeople(String name) async {
     final list = <PeopleItem>[];
 
     var people = await _searchSinglePeople(name);
@@ -53,74 +79,80 @@ class Swapi {
     return list;
   }
 
-  static Future<PeopleItem> getPeopleItem(String url,
+  @override
+  Future<PeopleItem> getPeopleItem(String url, {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return PeopleItem.fromMap(map);
+  }
+
+  @override
+  Future<People> getPeople(String url, {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return People.fromMap(map);
+  }
+
+  @override
+  Future<FilmsItem> getFilmsItem(String url, {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return FilmsItem.fromMap(map);
+  }
+
+  @override
+  Future<Films> getFilms(String url, {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return Films.fromMap(map);
+  }
+
+  @override
+  Future<Planets> getPlanets(String url, {bool forceHttps = true}) async {
+    final map = await _makeRequest(url, forceHttps);
+    return Planets.fromMap(map);
+  }
+
+  @override
+  Future<PlanetsItem> getPlanetsItem(String url,
       {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return PeopleItem(map);
+    return PlanetsItem.fromMap(map);
   }
 
-  static Future<People> getPeople(String url, {bool forceHttps = true}) async {
-    final map = await _makeRequest(url, forceHttps);
-    return People(map);
-  }
-
-  static Future<FilmsItem> getFilmsItem(String url,
+  @override
+  Future<SpeciesItem> getSpeciesItem(String url,
       {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return FilmsItem(map);
+    return SpeciesItem.fromMap(map);
   }
 
-  static Future<Films> getFilms(String url, {bool forceHttps = true}) async {
+  @override
+  Future<Species> getSpecies(String url, {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return Films(map);
+    return Species.fromMap(map);
   }
 
-  static Future<Planets> getPlanets(String url,
+  @override
+  Future<VehiclesItem> getVehiclesItem(String url,
       {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return Planets(map);
+    return VehiclesItem.fromMap(map);
   }
 
-  static Future<PlanetsItem> getPlanetsItem(String url,
-      {bool forceHttps = true}) async {
+  @override
+  Future<Vehicles> getVehicles(String url, {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return PlanetsItem(map);
+    return Vehicles.fromMap(map);
   }
 
-  static Future<SpeciesItem> getSpeciesItem(String url,
+  @override
+  Future<StarshipsItem> getStarshipsItem(String url,
       {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return SpeciesItem(map);
+    return StarshipsItem.fromMap(map);
   }
 
-  static Future<Species> getSpecies(String url,
-      {bool forceHttps = true}) async {
+  @override
+  Future<Starships> getStarships(String url, {bool forceHttps = true}) async {
     final map = await _makeRequest(url, forceHttps);
-    return Species(map);
-  }
-
-  static Future<VehiclesItem> getVehiclesItem(String url,
-      {bool forceHttps = true}) async {
-    final map = await _makeRequest(url, forceHttps);
-    return VehiclesItem(map);
-  }
-
-  static Future<Vehicles> getVehicles(String url,
-      {bool forceHttps = true}) async {
-    final map = await _makeRequest(url, forceHttps);
-    return Vehicles(map);
-  }
-
-  static Future<StarshipsItem> getStarshipsItem(String url,
-      {bool forceHttps = true}) async {
-    final map = await _makeRequest(url, forceHttps);
-    return StarshipsItem(map);
-  }
-
-  static Future<Starships> getStarships(String url,
-      {bool forceHttps = true}) async {
-    final map = await _makeRequest(url, forceHttps);
-    return Starships(map);
+    return Starships.fromMap(map);
   }
 
   static Future<Map> _makeRequest(

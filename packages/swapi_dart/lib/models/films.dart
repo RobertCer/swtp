@@ -3,23 +3,39 @@ import 'dart:convert';
 import 'response_list.dart';
 import 'swapi_item.dart';
 
-/// A Film resource is a single film.
 class FilmsItem extends SwapiItem {
-  late String title;
-  late int episodeId;
-  late String openingCrawl;
-  late String director;
-  late String producer;
-  late String releaseDate;
-  late List<String> specieUrls;
-  late List<String> starshipUrls;
-  late List<String> vehicleUrls;
-  late List<String> characterUrls;
-  late List<String> planetUrls;
-  late String created;
-  late String edited;
+  late final String title;
+  late final int episodeId;
+  late final String openingCrawl;
+  late final String director;
+  late final String producer;
+  late final String releaseDate;
+  late final List<String> specieUrls;
+  late final List<String> starshipUrls;
+  late final List<String> vehicleUrls;
+  late final List<String> characterUrls;
+  late final List<String> planetUrls;
+  late final String created;
+  late final String edited;
 
-  FilmsItem(Map map) {
+  FilmsItem({
+    required String url,
+    required this.title,
+    required this.episodeId,
+    required this.openingCrawl,
+    required this.director,
+    required this.producer,
+    required this.releaseDate,
+    required this.specieUrls,
+    required this.starshipUrls,
+    required this.vehicleUrls,
+    required this.characterUrls,
+    required this.planetUrls,
+    required this.created,
+    required this.edited,
+  }) : super(url: url);
+
+  FilmsItem.fromMap(Map map) : super.fromMap(map) {
     if (map.containsKey('title') && map['title'] is String) {
       title = map['title'];
     } else {
@@ -54,12 +70,6 @@ class FilmsItem extends SwapiItem {
       releaseDate = map['release_date'];
     } else {
       throw FormatException('release_date invalid or missing');
-    }
-
-    if (map.containsKey('url') && map['url'] is String) {
-      url = map['url'];
-    } else {
-      throw FormatException('url invalid or missing');
     }
 
     if (map.containsKey('created') && map['created'] is String) {
@@ -110,28 +120,30 @@ class FilmsItem extends SwapiItem {
     }
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'episode_id': episodeId,
-      'opening_crawl': openingCrawl,
-      'director': director,
-      'producer': producer,
-      'releaseDate': releaseDate,
-      'species': specieUrls,
-      'starships': starshipUrls,
-      'vehicles': vehicleUrls,
-      'characters': characterUrls,
-      'planets': planetUrls,
-      'url': url,
-      'created': created,
-      'edited': edited,
-    };
+    return super.toMap()
+      ..addAll({
+        'title': title,
+        'episode_id': episodeId,
+        'opening_crawl': openingCrawl,
+        'director': director,
+        'producer': producer,
+        'releaseDate': releaseDate,
+        'species': specieUrls,
+        'starships': starshipUrls,
+        'vehicles': vehicleUrls,
+        'characters': characterUrls,
+        'planets': planetUrls,
+        'created': created,
+        'edited': edited,
+      });
   }
 
   String toJson() => json.encode(toMap());
 
-  factory FilmsItem.fromJson(String source) => FilmsItem(json.decode(source));
+  factory FilmsItem.fromJson(String source) =>
+      FilmsItem.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -178,26 +190,24 @@ class FilmsItem extends SwapiItem {
   }
 }
 
-/// Collection of FilmsItem
 class Films extends ResponseList {
-  List<FilmsItem> results;
+  final List<FilmsItem> results;
 
-  Films(Map map)
-      : results = _parseResults(map),
-        super(map);
+  Films({
+    required this.results,
+    required int count,
+    String? next,
+    String? previous,
+  }) : super(
+          count: count,
+          next: next,
+          previous: previous,
+        );
 
-  static List<FilmsItem> _parseResults(Map map) {
-    final list = <FilmsItem>[];
-    print(map['results'].runtimeType);
-    if (map.containsKey('results') && map['results'] is List) {
-      for (var i = 0; i < map['results'].length; i++) {
-        try {
-          list.add(FilmsItem(map['results'][i]));
-        } catch (err) {
-          continue;
-        }
-      }
-    }
-    return list;
-  }
+  Films.fromMap(Map map)
+      : results = ResponseList.parseResults<FilmsItem>(
+          map,
+          constructor: (map) => FilmsItem.fromMap(map),
+        ),
+        super.fromMap(map);
 }

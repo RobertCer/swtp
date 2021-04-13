@@ -27,10 +27,13 @@ class _DetailsListItemState extends State<DetailsListItem> {
         title: Text(item.title),
         subtitle: Text(item.value.toString()),
         children: [
-          ...item.items!.map((swapiItem) => ListTile(
+          ...item.items!.map(
+            (swapiItem) => ListTile(
               title: Text(swapiItem.detailsTitle),
               trailing: Icon(Icons.keyboard_arrow_right),
-              onTap: () => widget.onPressed?.call(swapiItem)))
+              onTap: () => widget.onPressed?.call(swapiItem),
+            ),
+          )
         ],
       );
     } else {

@@ -4,6 +4,7 @@ import 'package:swtp/models/detailed_swapi_item.dart';
 import 'package:swtp/repositories/swapi_provider.dart';
 import 'package:swtp/screens/details/bloc/details_bloc.dart';
 import 'package:swapi_dart/swapi_dart.dart';
+import 'package:swtp/widgets/custom_progress_indicator.dart';
 import 'package:swtp/widgets/details_list_item.dart';
 import 'package:swtp/extensions/swapi_item_utils.dart';
 
@@ -54,10 +55,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
         builder: (context, state) {
           if (state is DetailsStateLoading) {
             return Center(
-              child: CircularProgressIndicator.adaptive(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ),
+              child: CustomProgressIndicator(),
             );
           } else if (state is DetailsStateError) {
             return Center(
